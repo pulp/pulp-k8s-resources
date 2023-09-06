@@ -6129,6 +6129,7 @@ spec:
                 enum:
                 - ReadWriteMany
                 - ReadWriteOnce
+                - ""
                 type: string
               file_storage_size:
                 description: The size of the file storage; for example 100Gi. This
