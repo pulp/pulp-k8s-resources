@@ -2,5 +2,5 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-image: quay.io/pulp/pulp-operator:v1.0.0-alpha.9
+image: quay.io/pulp/pulp-operator:v1.0.0-beta.2
 namespace: pulp
