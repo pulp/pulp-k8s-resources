@@ -9,6 +9,6 @@ entries:
     name: pulp-operator
     type: application
     urls:
-    - https://github.com/pulp/pulp-k8s-resources/releases/download/1.0.1-beta.2/pulp-operator-0.1.0.tgz
+    - https://github.com/pulp/pulp-k8s-resources/releases/download/1.0.2-beta.2/pulp-operator-0.1.0.tgz
     version: 0.1.0
 generated: "2023-10-16T12:41:51.909244427-03:00"
