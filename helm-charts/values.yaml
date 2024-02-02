@@ -2,5 +2,46 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Might want to be moved to under `.operator`, but left for backwards compatibility.
 image: quay.io/pulp/pulp-operator:v1.0.0-beta.3
 namespace: pulp
+
+podSecurityContext:
+  runAsNonRoot: true
+
+imagePullSecrets:
+- name: redhat-operators-pull-secret
+
+operator:
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
+  relatedImages:
+    pulp: quay.io/pulp/pulp-minimal:stable
+    pulpWeb: quay.io/pulp/pulp-web:stable
+    redis: docker.io/library/redis:latest
+    postgres: docker.io/library/postgres:13
+
+kubeProxy:
+  image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.0
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
