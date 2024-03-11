@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 # Might want to be moved to under `.operator`, but left for backwards compatibility.
-image: quay.io/pulp/pulp-operator:v1.0.0-beta.3
+image: quay.io/pulp/pulp-operator:v1.0.0-beta.4
 namespace: pulp
 
 podSecurityContext:
