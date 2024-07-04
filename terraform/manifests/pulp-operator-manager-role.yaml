@@ -1,0 +1,214 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: pulp-operator-manager-role
+  namespace: ${ namespace }
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - persistentvolumeclaims
+  - pods
+  - pods/log
+  - secrets
+  - serviceaccounts
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  - persistentvolumes
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods/exec
+  verbs:
+  - create
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulpbackups
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulpbackups
+  - pulps
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulpbackups/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulpbackups/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulprestores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulprestores/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulprestores/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulps/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - repo-manager.pulpproject.org
+  resources:
+  - pulps/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  - routes/custom-host
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

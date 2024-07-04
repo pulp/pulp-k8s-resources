@@ -1,2 +1,7 @@
 # Do not commit tarballs
 *.tgz
+
+# Terraform
+.terraform
+terraform.tfstate
+terraform.tfstate.backup
