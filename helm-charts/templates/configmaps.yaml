@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: pulp-operator-manager-config
+  name: {{ include "pulp-operator.fullname" . }}-manager-config
   namespace: {{ .Values.namespace }}
 data:
   controller_manager_config.yaml: |
