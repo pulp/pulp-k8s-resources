@@ -4,7 +4,7 @@ kind: Service
 metadata:
   labels:
     control-plane: controller-manager
-  name: pulp-operator-controller-manager-metrics-service
+  name: {{ include "pulp-operator.fullname" . }}-controller-manager-metrics-service
   namespace: {{ .Values.namespace }}
 spec:
   ports:

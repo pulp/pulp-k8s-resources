@@ -4,10 +4,10 @@ kind: Deployment
 metadata:
   labels:
     app.kubernetes.io/component: operator
-    app.kubernetes.io/name: pulp-operator
+    app.kubernetes.io/name: {{ .Chart.Name }}
     control-plane: controller-manager
     owner: pulp-dev
-  name: pulp-operator-controller-manager
+  name: {{ include "pulp-operator.fullname" . }}-controller-manager
   namespace: {{ .Values.namespace }}
 spec:
   replicas: 1
@@ -22,7 +22,7 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         app.kubernetes.io/component: operator
-        app.kubernetes.io/name: pulp-operator
+        app.kubernetes.io/name: {{ .Chart.Name }}
         control-plane: controller-manager
     spec:
       containers:
@@ -86,5 +86,5 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      serviceAccountName: pulp-operator-controller-manager
+      serviceAccountName: {{ include "pulp-operator.fullname" . }}-controller-manager
       terminationGracePeriodSeconds: 10
