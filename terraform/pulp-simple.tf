@@ -2,7 +2,7 @@ resource "kubernetes_manifest" "pulp_pulp" {
   count = var.deploy_simple ? 1 : 0
   depends_on = [ kubernetes_manifest.roles ]
   manifest = {
-    "apiVersion" = "repo-manager.pulpproject.org/v1beta2"
+    "apiVersion" = "repo-manager.pulpproject.org/v1"
     "kind" = "Pulp"
     "metadata" = {
       "name" = "pulp"

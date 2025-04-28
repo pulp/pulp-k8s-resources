@@ -27,7 +27,7 @@ variable "service_account" {
 
 variable "operator_image" {
    type = string
-   default = "quay.io/pulp/pulp-operator:v1.0.0-beta.5"
+   default = "quay.io/pulp/pulp-operator:v1.0.0"
 }
 
 variable "deploy_simple" {
