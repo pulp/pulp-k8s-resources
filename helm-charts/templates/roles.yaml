@@ -1,9 +1,10 @@
+# ...existing code...
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "pulp-operator.fullname" . }}-leader-election-role
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.operatorNamespace | default .Values.namespace }}
 rules:
 - apiGroups:
   - ""
@@ -38,11 +39,9 @@ rules:
   - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
-  creationTimestamp: null
   name: {{ include "pulp-operator.fullname" . }}-manager-role
-  namespace: {{ .Values.namespace }}
 rules:
 - apiGroups:
   - apps
@@ -284,7 +283,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ include "pulp-operator.fullname" . }}-leader-election-rolebinding
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.operatorNamespace | default .Values.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -292,13 +291,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: {{ include "pulp-operator.fullname" . }}-controller-manager
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.operatorNamespace | default .Values.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ include "pulp-operator.fullname" . }}-manager-rolebinding
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.operatorNamespace | default .Values.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -306,7 +305,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: {{ include "pulp-operator.fullname" . }}-controller-manager
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.operatorNamespace | default .Values.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -315,11 +314,11 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: manager-role
+  name: {{ include "pulp-operator.fullname" . }}-manager-role
 subjects:
-- kind: ServiceAccount
-  name: {{ include "pulp-operator.fullname" . }}-controller-manager
-  namespace: {{ .Values.namespace }}
+  - kind: ServiceAccount
+    name: {{ include "pulp-operator.fullname" . }}-controller-manager
+    namespace: {{ .Values.operatorNamespace | default .Values.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -336,41 +335,3 @@ subjects:
 
 
 
-#####################################################################################################################
-# Temp clusterroles while the container image is not build with PR https://github.com/pulp/pulp-operator/pull/1009  #
-#####################################################################################################################
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: {{ include "pulp-operator.fullname" . }}-manager-role-tmp
-rules:
-- apiGroups:
-  - config.openshift.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingressclasses
-  verbs:
-  - get
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ include "pulp-operator.fullname" . }}-manager-rolebinding-tmp
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ include "pulp-operator.fullname" . }}-manager-role-tmp
-subjects:
-- kind: ServiceAccount
-  name: {{ include "pulp-operator.fullname" . }}-controller-manager
-  namespace: {{ .Values.namespace }}
