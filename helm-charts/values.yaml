@@ -16,6 +16,10 @@ podSecurityContext:
 imagePullSecrets:
 - name: redhat-operators-pull-secret
 
+nodeSelector: {}
+affinity: {}
+tolerations: {}
+
 operator:
   securityContext:
     allowPrivilegeEscalation: false

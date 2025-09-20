@@ -72,14 +72,20 @@ spec:
           periodSeconds: 10
         # TODO(user): Configure the resources accordingly based on the project requirements.
         # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        resources:
-          limits:
-            cpu: 500m
-            memory: 128Mi
-          requests:
-            cpu: 10m
-            memory: 64Mi
+        resources: ${yamlencode(resources)}
       serviceAccountName: ${service_account}
       imagePullSecrets:
         - name: redhat-operators-pull-secret
       terminationGracePeriodSeconds: 10
+      %{~ if length(node_selector) > 0 ~}
+      nodeSelector:
+        %{~ for key, value in node_selector ~}
+        ${key}: ${value}
+        %{~ endfor ~}
+      %{~ endif ~}
+      %{~ if length(affinity) > 0 ~}
+      affinity: ${yamlencode(affinity)}
+      %{~ endif ~}
+      %{~ if length(tolerations) > 0 ~}
+      tolerations: ${yamlencode(tolerations)}
+      %{~ endif ~}
