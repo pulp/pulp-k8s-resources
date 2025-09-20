@@ -40,6 +40,39 @@ variable "deploy_settings_cm" {
   default = false
 }
 
+variable "node_selector" {
+  type = map(string)
+  default = {}
+  description = "Node selector constraints for the pulp operator deployment"
+}
+
+variable "affinity" {
+  type = any
+  default = {}
+  description = "Affinity constraints for the pulp operator deployment"
+}
+
+variable "tolerations" {
+  type = list(any)
+  default = []
+  description = "Tolerations for the pulp operator deployment"
+}
+
+variable "resources" {
+  type = any
+  default = {
+    limits = {
+      cpu = "500m"
+      memory = "128Mi"
+    }
+    requests = {
+      cpu = "10m"
+      memory = "64Mi"
+    }
+  }
+  description = "Resource limits and requests for the pulp operator deployment"
+}
+
 resource "kubernetes_namespace" "ns" {
     metadata {
         name = var.namespace
@@ -48,5 +81,18 @@ resource "kubernetes_namespace" "ns" {
 
 resource "kubernetes_manifest" "roles" {
   for_each = local.files
-  manifest = yamldecode(templatefile("${each.value}",{ namespace = var.namespace , service_account = var.service_account, image = var.operator_image }))
+  manifest = yamldecode(
+    templatefile(
+      "${each.value}",
+      {
+        namespace = var.namespace,
+        service_account = var.service_account,
+        image = var.operator_image,
+        node_selector = var.node_selector,
+        affinity = var.affinity,
+        tolerations = var.tolerations,
+        resources = var.resources
+      }
+    )
+  )
 }
