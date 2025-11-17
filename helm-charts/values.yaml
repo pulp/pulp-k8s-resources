@@ -20,6 +20,9 @@ nodeSelector: {}
 affinity: {}
 tolerations: {}
 
+serviceAccount:
+   annotations: {}
+
 operator:
   securityContext:
     allowPrivilegeEscalation: false
