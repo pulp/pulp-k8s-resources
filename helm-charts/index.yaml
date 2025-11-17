@@ -3,12 +3,12 @@ entries:
   pulp-operator:
   - apiVersion: v2
     appVersion: 1.1.0
-    created: "2025-10-06T16:43:58.370246643-03:00"
+    created: "2025-11-17T17:22:57.554355509+01:00"
     description: A Helm chart to install pulp-operator
-    digest: f99394c966f05f6055d3071d8a85b7d7858d86bf8cb53fb93f76ce333649f40e
+    digest: 565842bb27b0d73550b716fdbc42f4b90e7380e983f0f048d48507357c892be9
     name: pulp-operator
     type: application
     urls:
-    - https://github.com/pulp/pulp-k8s-resources/releases/download/1.1.0/pulp-operator-0.4.0.tgz
-    version: 0.4.0
-generated: "2025-10-06T16:43:58.365471552-03:00"
+    - pulp-operator-0.5.0.tgz
+    version: 0.5.0
+generated: "2025-11-17T17:22:57.552230729+01:00"
