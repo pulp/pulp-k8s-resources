@@ -28,6 +28,8 @@ jobs:
         with:
           ingress-type: nodeport
 
+      - uses: actions/checkout@v4
+
       - name: Install Pulp Operator
         run: |
           kubectl create ns pulp-operator-system
@@ -62,6 +64,5 @@ jobs:
         if: always()
         run: |
           .github/workflows/scripts/show_logs.sh
-          helm repo list
           helm list
         shell: bash
