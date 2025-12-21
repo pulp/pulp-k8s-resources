@@ -6,7 +6,7 @@
 fullnameOverride: pulp-operator
 
 # Might want to be moved to under `.operator`, but left for backwards compatibility.
-image: quay.io/pulp/pulp-operator:v1.1.0
+image: quay.io/pulp/pulp-operator:v1.2.0
 namespace: pulp
 operatorNamespace: null # If unset/null, defaults to .Values.namespace in templates
 
