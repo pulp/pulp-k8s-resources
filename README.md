@@ -35,12 +35,12 @@ All options can be set in your `values.yaml` or via `--set` on the Helm CLI.
    kubectl create namespace <operatorNamespace>
    kubectl create namespace <namespace>
    # Or let Helm create them:
-   helm install <release> ./helm-charts -n <operatorNamespace> --create-namespace -f my-values.yaml
+   helm install <release> ./helm-charts/chart -n <operatorNamespace> --create-namespace -f my-values.yaml
    ```
 
 2. Install the chart:
    ```sh
-   helm install <release> ./helm-charts -n <operatorNamespace> --create-namespace -f my-values.yaml
+   helm install <release> ./helm-charts/chart -n <operatorNamespace> --create-namespace -f my-values.yaml
    ```
 
 ### Example values.yaml
