@@ -34,7 +34,7 @@ jobs:
         run: |
           kubectl create ns pulp-operator-system
           kubectl config set-context --current --namespace=pulp-operator-system
-          helm install --set namespace=pulp-operator-system pulp-operator helm-charts/
+          helm install --set namespace=pulp-operator-system pulp-operator helm-charts/chart
 
       - uses: actions/checkout@v4
         with:
