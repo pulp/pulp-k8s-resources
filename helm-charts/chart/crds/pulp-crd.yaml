@@ -53,8 +53,9 @@ spec:
                             in a Container.
                           properties:
                             name:
-                              description: Name of the environment variable. Must
-                                be a C_IDENTIFIER.
+                              description: |-
+                                Name of the environment variable.
+                                May consist of any printable ASCII characters except '='.
                               type: string
                             value:
                               description: |-
@@ -110,6 +111,43 @@ spec:
                                       type: string
                                   required:
                                   - fieldPath
+                                  type: object
+                                  x-kubernetes-map-type: atomic
+                                fileKeyRef:
+                                  description: |-
+                                    FileKeyRef selects a key of the env file.
+                                    Requires the EnvFiles feature gate to be enabled.
+                                  properties:
+                                    key:
+                                      description: |-
+                                        The key within the env file. An invalid key will prevent the pod from starting.
+                                        The keys defined within a source may consist of any printable ASCII characters except '='.
+                                        During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                      type: string
+                                    optional:
+                                      default: false
+                                      description: |-
+                                        Specify whether the file or its key must be defined. If the file or key
+                                        does not exist, then the env var is not published.
+                                        If optional is set to true and the specified key does not exist,
+                                        the environment variable will not be set in the Pod's containers.
+
+                                        If optional is set to false and the specified key does not exist,
+                                        an error will be returned during Pod creation.
+                                      type: boolean
+                                    path:
+                                      description: |-
+                                        The path within the volume from which to select the file.
+                                        Must be relative and may not contain the '..' path or start with '..'.
+                                      type: string
+                                    volumeName:
+                                      description: The name of the volume mount containing
+                                        the env file.
+                                      type: string
+                                  required:
+                                  - key
+                                  - path
+                                  - volumeName
                                   type: object
                                   x-kubernetes-map-type: atomic
                                 resourceFieldRef:
@@ -180,7 +218,7 @@ spec:
                               Claims lists the names of resources, defined in spec.resourceClaims,
                               that are used by this container.
 
-                              This is an alpha field and requires enabling the
+                              This field depends on the
                               DynamicResourceAllocation feature gate.
 
                               This field is immutable. It can only be set for containers.
@@ -536,7 +574,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -551,7 +588,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -718,7 +754,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -733,7 +768,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -827,8 +861,8 @@ spec:
                               most preferred is the one with the greatest sum of weights, i.e.
                               for each node that meets all of the scheduling requirements (resource
                               request, requiredDuringScheduling anti-affinity expressions, etc.),
-                              compute a sum by iterating through the elements of this field and adding
-                              "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+                              compute a sum by iterating through the elements of this field and subtracting
+                              "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
                               node(s) with the highest sum are the most preferred.
                             items:
                               description: The weights of all of the matched WeightedPodAffinityTerm
@@ -898,7 +932,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -913,7 +946,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -1080,7 +1112,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -1095,7 +1126,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -1189,8 +1219,9 @@ spec:
                         in a Container.
                       properties:
                         name:
-                          description: Name of the environment variable. Must be a
-                            C_IDENTIFIER.
+                          description: |-
+                            Name of the environment variable.
+                            May consist of any printable ASCII characters except '='.
                           type: string
                         value:
                           description: |-
@@ -1248,6 +1279,43 @@ spec:
                               - fieldPath
                               type: object
                               x-kubernetes-map-type: atomic
+                            fileKeyRef:
+                              description: |-
+                                FileKeyRef selects a key of the env file.
+                                Requires the EnvFiles feature gate to be enabled.
+                              properties:
+                                key:
+                                  description: |-
+                                    The key within the env file. An invalid key will prevent the pod from starting.
+                                    The keys defined within a source may consist of any printable ASCII characters except '='.
+                                    During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                  type: string
+                                optional:
+                                  default: false
+                                  description: |-
+                                    Specify whether the file or its key must be defined. If the file or key
+                                    does not exist, then the env var is not published.
+                                    If optional is set to true and the specified key does not exist,
+                                    the environment variable will not be set in the Pod's containers.
+
+                                    If optional is set to false and the specified key does not exist,
+                                    an error will be returned during Pod creation.
+                                  type: boolean
+                                path:
+                                  description: |-
+                                    The path within the volume from which to select the file.
+                                    Must be relative and may not contain the '..' path or start with '..'.
+                                  type: string
+                                volumeName:
+                                  description: The name of the volume mount containing
+                                    the env file.
+                                  type: string
+                              required:
+                              - key
+                              - path
+                              - volumeName
+                              type: object
+                              x-kubernetes-map-type: atomic
                             resourceFieldRef:
                               description: |-
                                 Selects a resource of the container: only resources limits and requests
@@ -1303,7 +1371,8 @@ spec:
                       type: object
                     type: array
                   gunicorn_access_logformat:
-                    description: For the gunicorn --access-logformat CLI command used to format the access logs.
+                    description: For the gunicorn --access-logformat CLI command used
+                      to format the access logs.
                     type: string
                   gunicorn_timeout:
                     description: |-
@@ -1315,6 +1384,50 @@ spec:
                       The number of gunicorn workers to use for the api.
                       Default: 2
                     type: integer
+                  hpa:
+                    description: HPA defines the Horizontal Pod Autoscaler configuration
+                      for the pulp-api deployment
+                    properties:
+                      enabled:
+                        default: false
+                        description: |-
+                          Enabled determines whether HPA should be created for this component
+                          Default: false
+                        type: boolean
+                      max_replicas:
+                        description: |-
+                          MaxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
+                          It cannot be less than MinReplicas.
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      min_replicas:
+                        default: 1
+                        description: |-
+                          MinReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
+                          Default: 1
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      target_cpu_utilization_percentage:
+                        description: |-
+                          TargetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods.
+                          If not specified, a default value of 50 is used.
+                        format: int32
+                        maximum: 100
+                        minimum: 1
+                        type: integer
+                      target_memory_utilization_percentage:
+                        description: TargetMemoryUtilizationPercentage is the target
+                          average memory utilization (represented as a percentage
+                          of requested memory) over all the pods.
+                        format: int32
+                        maximum: 100
+                        minimum: 1
+                        type: integer
+                    required:
+                    - max_replicas
+                    type: object
                   init_container:
                     description: InitContainer defines configuration of the init-containers
                       that run in pulpcore pods
@@ -1326,8 +1439,9 @@ spec:
                             in a Container.
                           properties:
                             name:
-                              description: Name of the environment variable. Must
-                                be a C_IDENTIFIER.
+                              description: |-
+                                Name of the environment variable.
+                                May consist of any printable ASCII characters except '='.
                               type: string
                             value:
                               description: |-
@@ -1383,6 +1497,43 @@ spec:
                                       type: string
                                   required:
                                   - fieldPath
+                                  type: object
+                                  x-kubernetes-map-type: atomic
+                                fileKeyRef:
+                                  description: |-
+                                    FileKeyRef selects a key of the env file.
+                                    Requires the EnvFiles feature gate to be enabled.
+                                  properties:
+                                    key:
+                                      description: |-
+                                        The key within the env file. An invalid key will prevent the pod from starting.
+                                        The keys defined within a source may consist of any printable ASCII characters except '='.
+                                        During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                      type: string
+                                    optional:
+                                      default: false
+                                      description: |-
+                                        Specify whether the file or its key must be defined. If the file or key
+                                        does not exist, then the env var is not published.
+                                        If optional is set to true and the specified key does not exist,
+                                        the environment variable will not be set in the Pod's containers.
+
+                                        If optional is set to false and the specified key does not exist,
+                                        an error will be returned during Pod creation.
+                                      type: boolean
+                                    path:
+                                      description: |-
+                                        The path within the volume from which to select the file.
+                                        Must be relative and may not contain the '..' path or start with '..'.
+                                      type: string
+                                    volumeName:
+                                      description: The name of the volume mount containing
+                                        the env file.
+                                      type: string
+                                  required:
+                                  - key
+                                  - path
+                                  - volumeName
                                   type: object
                                   x-kubernetes-map-type: atomic
                                 resourceFieldRef:
@@ -1453,7 +1604,7 @@ spec:
                               Claims lists the names of resources, defined in spec.resourceClaims,
                               that are used by this container.
 
-                              This is an alpha field and requires enabling the
+                              This field depends on the
                               DynamicResourceAllocation feature gate.
 
                               This field is immutable. It can only be set for containers.
@@ -1761,9 +1912,6 @@ spec:
                           Additional policies may be added in the future.
                           Clients making eviction decisions should disallow eviction of unhealthy pods
                           if they encounter an unrecognized policy in this field.
-
-                          This field is beta-level. The eviction API uses this field when
-                          the feature gate PDBUnhealthyPodEvictionPolicy is enabled (enabled by default).
                         type: string
                     type: object
                   pod_labels:
@@ -1933,50 +2081,6 @@ spec:
                     minimum: 0
                     nullable: true
                     type: integer
-                  hpa:
-                    description: HPA defines the Horizontal Pod Autoscaler configuration
-                      for the pulp-api deployment
-                    properties:
-                      enabled:
-                        default: false
-                        description: |-
-                          Enabled determines whether HPA should be created for this component
-                          Default: false
-                        type: boolean
-                      max_replicas:
-                        description: |-
-                          MaxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
-                          It cannot be less than MinReplicas.
-                        format: int32
-                        minimum: 1
-                        type: integer
-                      min_replicas:
-                        default: 1
-                        description: |-
-                          MinReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
-                          Default: 1
-                        format: int32
-                        minimum: 1
-                        type: integer
-                      target_cpu_utilization_percentage:
-                        description: |-
-                          TargetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods.
-                          If not specified, a default value of 50 is used.
-                        format: int32
-                        maximum: 100
-                        minimum: 1
-                        type: integer
-                      target_memory_utilization_percentage:
-                        description: TargetMemoryUtilizationPercentage is the target
-                          average memory utilization (represented as a percentage
-                          of requested memory) over all the pods.
-                        format: int32
-                        maximum: 100
-                        minimum: 1
-                        type: integer
-                    required:
-                    - max_replicas
-                    type: object
                   resource_requirements:
                     description: Resource requirements for the pulp api container.
                     properties:
@@ -1985,7 +2089,7 @@ spec:
                           Claims lists the names of resources, defined in spec.resourceClaims,
                           that are used by this container.
 
-                          This is an alpha field and requires enabling the
+                          This field depends on the
                           DynamicResourceAllocation feature gate.
 
                           This field is immutable. It can only be set for containers.
@@ -2104,9 +2208,10 @@ spec:
                         operator:
                           description: |-
                             Operator represents a key's relationship to the value.
-                            Valid operators are Exists and Equal. Defaults to Equal.
+                            Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                             Exists is equivalent to wildcard for value, so that a pod can
                             tolerate all taints of a particular category.
+                            Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                           type: string
                         tolerationSeconds:
                           description: |-
@@ -2246,7 +2351,6 @@ spec:
                             - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
 
                             If this value is nil, the behavior is equivalent to the Honor policy.
-                            This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
                           type: string
                         nodeTaintsPolicy:
                           description: |-
@@ -2257,7 +2361,6 @@ spec:
                             - Ignore: node taints are ignored. All nodes are included.
 
                             If this value is nil, the behavior is equivalent to the Ignore policy.
-                            This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
                           type: string
                         topologyKey:
                           description: |-
@@ -2589,7 +2692,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -2604,7 +2706,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -2771,7 +2872,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -2786,7 +2886,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -2880,8 +2979,8 @@ spec:
                               most preferred is the one with the greatest sum of weights, i.e.
                               for each node that meets all of the scheduling requirements (resource
                               request, requiredDuringScheduling anti-affinity expressions, etc.),
-                              compute a sum by iterating through the elements of this field and adding
-                              "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+                              compute a sum by iterating through the elements of this field and subtracting
+                              "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
                               node(s) with the highest sum are the most preferred.
                             items:
                               description: The weights of all of the matched WeightedPodAffinityTerm
@@ -2951,7 +3050,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -2966,7 +3064,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -3133,7 +3230,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -3148,7 +3244,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -3584,7 +3679,7 @@ spec:
                           Claims lists the names of resources, defined in spec.resourceClaims,
                           that are used by this container.
 
-                          This is an alpha field and requires enabling the
+                          This field depends on the
                           DynamicResourceAllocation feature gate.
 
                           This field is immutable. It can only be set for containers.
@@ -3706,9 +3801,10 @@ spec:
                         operator:
                           description: |-
                             Operator represents a key's relationship to the value.
-                            Valid operators are Exists and Equal. Defaults to Equal.
+                            Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                             Exists is equivalent to wildcard for value, so that a pod can
                             tolerate all taints of a particular category.
+                            Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                           type: string
                         tolerationSeconds:
                           description: |-
@@ -4034,7 +4130,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -4049,7 +4144,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -4216,7 +4310,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -4231,7 +4324,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -4325,8 +4417,8 @@ spec:
                               most preferred is the one with the greatest sum of weights, i.e.
                               for each node that meets all of the scheduling requirements (resource
                               request, requiredDuringScheduling anti-affinity expressions, etc.),
-                              compute a sum by iterating through the elements of this field and adding
-                              "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+                              compute a sum by iterating through the elements of this field and subtracting
+                              "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
                               node(s) with the highest sum are the most preferred.
                             items:
                               description: The weights of all of the matched WeightedPodAffinityTerm
@@ -4396,7 +4488,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -4411,7 +4502,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -4578,7 +4668,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -4593,7 +4682,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -4688,8 +4776,9 @@ spec:
                         in a Container.
                       properties:
                         name:
-                          description: Name of the environment variable. Must be a
-                            C_IDENTIFIER.
+                          description: |-
+                            Name of the environment variable.
+                            May consist of any printable ASCII characters except '='.
                           type: string
                         value:
                           description: |-
@@ -4747,6 +4836,43 @@ spec:
                               - fieldPath
                               type: object
                               x-kubernetes-map-type: atomic
+                            fileKeyRef:
+                              description: |-
+                                FileKeyRef selects a key of the env file.
+                                Requires the EnvFiles feature gate to be enabled.
+                              properties:
+                                key:
+                                  description: |-
+                                    The key within the env file. An invalid key will prevent the pod from starting.
+                                    The keys defined within a source may consist of any printable ASCII characters except '='.
+                                    During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                  type: string
+                                optional:
+                                  default: false
+                                  description: |-
+                                    Specify whether the file or its key must be defined. If the file or key
+                                    does not exist, then the env var is not published.
+                                    If optional is set to true and the specified key does not exist,
+                                    the environment variable will not be set in the Pod's containers.
+
+                                    If optional is set to false and the specified key does not exist,
+                                    an error will be returned during Pod creation.
+                                  type: boolean
+                                path:
+                                  description: |-
+                                    The path within the volume from which to select the file.
+                                    Must be relative and may not contain the '..' path or start with '..'.
+                                  type: string
+                                volumeName:
+                                  description: The name of the volume mount containing
+                                    the env file.
+                                  type: string
+                              required:
+                              - key
+                              - path
+                              - volumeName
+                              type: object
+                              x-kubernetes-map-type: atomic
                             resourceFieldRef:
                               description: |-
                                 Selects a resource of the container: only resources limits and requests
@@ -4802,7 +4928,8 @@ spec:
                       type: object
                     type: array
                   gunicorn_access_logformat:
-                    description: For the gunicorn --access-logformat CLI command used to format the access logs.
+                    description: For the gunicorn --access-logformat CLI command used
+                      to format the access logs.
                     type: string
                   gunicorn_timeout:
                     description: |-
@@ -4814,6 +4941,50 @@ spec:
                       The number of gunicorn workers to use for the api.
                       Default: 2
                     type: integer
+                  hpa:
+                    description: HPA defines the Horizontal Pod Autoscaler configuration
+                      for the pulp-content deployment
+                    properties:
+                      enabled:
+                        default: false
+                        description: |-
+                          Enabled determines whether HPA should be created for this component
+                          Default: false
+                        type: boolean
+                      max_replicas:
+                        description: |-
+                          MaxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
+                          It cannot be less than MinReplicas.
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      min_replicas:
+                        default: 1
+                        description: |-
+                          MinReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
+                          Default: 1
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      target_cpu_utilization_percentage:
+                        description: |-
+                          TargetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods.
+                          If not specified, a default value of 50 is used.
+                        format: int32
+                        maximum: 100
+                        minimum: 1
+                        type: integer
+                      target_memory_utilization_percentage:
+                        description: TargetMemoryUtilizationPercentage is the target
+                          average memory utilization (represented as a percentage
+                          of requested memory) over all the pods.
+                        format: int32
+                        maximum: 100
+                        minimum: 1
+                        type: integer
+                    required:
+                    - max_replicas
+                    type: object
                   init_container:
                     description: InitContainer defines configuration of the init-containers
                       that run in pulpcore pods
@@ -4825,8 +4996,9 @@ spec:
                             in a Container.
                           properties:
                             name:
-                              description: Name of the environment variable. Must
-                                be a C_IDENTIFIER.
+                              description: |-
+                                Name of the environment variable.
+                                May consist of any printable ASCII characters except '='.
                               type: string
                             value:
                               description: |-
@@ -4882,6 +5054,43 @@ spec:
                                       type: string
                                   required:
                                   - fieldPath
+                                  type: object
+                                  x-kubernetes-map-type: atomic
+                                fileKeyRef:
+                                  description: |-
+                                    FileKeyRef selects a key of the env file.
+                                    Requires the EnvFiles feature gate to be enabled.
+                                  properties:
+                                    key:
+                                      description: |-
+                                        The key within the env file. An invalid key will prevent the pod from starting.
+                                        The keys defined within a source may consist of any printable ASCII characters except '='.
+                                        During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                      type: string
+                                    optional:
+                                      default: false
+                                      description: |-
+                                        Specify whether the file or its key must be defined. If the file or key
+                                        does not exist, then the env var is not published.
+                                        If optional is set to true and the specified key does not exist,
+                                        the environment variable will not be set in the Pod's containers.
+
+                                        If optional is set to false and the specified key does not exist,
+                                        an error will be returned during Pod creation.
+                                      type: boolean
+                                    path:
+                                      description: |-
+                                        The path within the volume from which to select the file.
+                                        Must be relative and may not contain the '..' path or start with '..'.
+                                      type: string
+                                    volumeName:
+                                      description: The name of the volume mount containing
+                                        the env file.
+                                      type: string
+                                  required:
+                                  - key
+                                  - path
+                                  - volumeName
                                   type: object
                                   x-kubernetes-map-type: atomic
                                 resourceFieldRef:
@@ -4952,7 +5161,7 @@ spec:
                               Claims lists the names of resources, defined in spec.resourceClaims,
                               that are used by this container.
 
-                              This is an alpha field and requires enabling the
+                              This field depends on the
                               DynamicResourceAllocation feature gate.
 
                               This field is immutable. It can only be set for containers.
@@ -5260,9 +5469,6 @@ spec:
                           Additional policies may be added in the future.
                           Clients making eviction decisions should disallow eviction of unhealthy pods
                           if they encounter an unrecognized policy in this field.
-
-                          This field is beta-level. The eviction API uses this field when
-                          the feature gate PDBUnhealthyPodEvictionPolicy is enabled (enabled by default).
                         type: string
                     type: object
                   pod_labels:
@@ -5432,50 +5638,6 @@ spec:
                     minimum: 0
                     nullable: true
                     type: integer
-                  hpa:
-                    description: HPA defines the Horizontal Pod Autoscaler configuration
-                      for the pulp-content deployment
-                    properties:
-                      enabled:
-                        default: false
-                        description: |-
-                          Enabled determines whether HPA should be created for this component
-                          Default: false
-                        type: boolean
-                      max_replicas:
-                        description: |-
-                          MaxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
-                          It cannot be less than MinReplicas.
-                        format: int32
-                        minimum: 1
-                        type: integer
-                      min_replicas:
-                        default: 1
-                        description: |-
-                          MinReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
-                          Default: 1
-                        format: int32
-                        minimum: 1
-                        type: integer
-                      target_cpu_utilization_percentage:
-                        description: |-
-                          TargetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods.
-                          If not specified, a default value of 50 is used.
-                        format: int32
-                        maximum: 100
-                        minimum: 1
-                        type: integer
-                      target_memory_utilization_percentage:
-                        description: TargetMemoryUtilizationPercentage is the target
-                          average memory utilization (represented as a percentage
-                          of requested memory) over all the pods.
-                        format: int32
-                        maximum: 100
-                        minimum: 1
-                        type: integer
-                    required:
-                    - max_replicas
-                    type: object
                   resource_requirements:
                     description: Resource requirements for the pulp-content container
                     properties:
@@ -5484,7 +5646,7 @@ spec:
                           Claims lists the names of resources, defined in spec.resourceClaims,
                           that are used by this container.
 
-                          This is an alpha field and requires enabling the
+                          This field depends on the
                           DynamicResourceAllocation feature gate.
 
                           This field is immutable. It can only be set for containers.
@@ -5603,9 +5765,10 @@ spec:
                         operator:
                           description: |-
                             Operator represents a key's relationship to the value.
-                            Valid operators are Exists and Equal. Defaults to Equal.
+                            Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                             Exists is equivalent to wildcard for value, so that a pod can
                             tolerate all taints of a particular category.
+                            Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                           type: string
                         tolerationSeconds:
                           description: |-
@@ -5745,7 +5908,6 @@ spec:
                             - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
 
                             If this value is nil, the behavior is equivalent to the Honor policy.
-                            This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
                           type: string
                         nodeTaintsPolicy:
                           description: |-
@@ -5756,7 +5918,6 @@ spec:
                             - Ignore: node taints are ignored. All nodes are included.
 
                             If this value is nil, the behavior is equivalent to the Ignore policy.
-                            This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
                           type: string
                         topologyKey:
                           description: |-
@@ -6092,7 +6253,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -6107,7 +6267,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -6274,7 +6433,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -6289,7 +6447,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -6383,8 +6540,8 @@ spec:
                               most preferred is the one with the greatest sum of weights, i.e.
                               for each node that meets all of the scheduling requirements (resource
                               request, requiredDuringScheduling anti-affinity expressions, etc.),
-                              compute a sum by iterating through the elements of this field and adding
-                              "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+                              compute a sum by iterating through the elements of this field and subtracting
+                              "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
                               node(s) with the highest sum are the most preferred.
                             items:
                               description: The weights of all of the matched WeightedPodAffinityTerm
@@ -6454,7 +6611,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -6469,7 +6625,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -6636,7 +6791,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -6651,7 +6805,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -6938,7 +7091,7 @@ spec:
                           Claims lists the names of resources, defined in spec.resourceClaims,
                           that are used by this container.
 
-                          This is an alpha field and requires enabling the
+                          This field depends on the
                           DynamicResourceAllocation feature gate.
 
                           This field is immutable. It can only be set for containers.
@@ -7182,9 +7335,10 @@ spec:
                         operator:
                           description: |-
                             Operator represents a key's relationship to the value.
-                            Valid operators are Exists and Equal. Defaults to Equal.
+                            Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                             Exists is equivalent to wildcard for value, so that a pod can
                             tolerate all taints of a particular category.
+                            Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                           type: string
                         tolerationSeconds:
                           description: |-
@@ -7242,6 +7396,11 @@ spec:
                   The timeout for HAProxy.
                   Default: "180s"
                 type: string
+              hide_guarded_distributions:
+                description: |-
+                  If True, the distributions, that are protected by a content guard, will not be shown on the directory listing in the content app.
+                  Default: false
+                type: boolean
               image:
                 default: quay.io/pulp/pulp-minimal
                 description: |-
@@ -7363,8 +7522,9 @@ spec:
                             in a Container.
                           properties:
                             name:
-                              description: Name of the environment variable. Must
-                                be a C_IDENTIFIER.
+                              description: |-
+                                Name of the environment variable.
+                                May consist of any printable ASCII characters except '='.
                               type: string
                             value:
                               description: |-
@@ -7420,6 +7580,43 @@ spec:
                                       type: string
                                   required:
                                   - fieldPath
+                                  type: object
+                                  x-kubernetes-map-type: atomic
+                                fileKeyRef:
+                                  description: |-
+                                    FileKeyRef selects a key of the env file.
+                                    Requires the EnvFiles feature gate to be enabled.
+                                  properties:
+                                    key:
+                                      description: |-
+                                        The key within the env file. An invalid key will prevent the pod from starting.
+                                        The keys defined within a source may consist of any printable ASCII characters except '='.
+                                        During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                      type: string
+                                    optional:
+                                      default: false
+                                      description: |-
+                                        Specify whether the file or its key must be defined. If the file or key
+                                        does not exist, then the env var is not published.
+                                        If optional is set to true and the specified key does not exist,
+                                        the environment variable will not be set in the Pod's containers.
+
+                                        If optional is set to false and the specified key does not exist,
+                                        an error will be returned during Pod creation.
+                                      type: boolean
+                                    path:
+                                      description: |-
+                                        The path within the volume from which to select the file.
+                                        Must be relative and may not contain the '..' path or start with '..'.
+                                      type: string
+                                    volumeName:
+                                      description: The name of the volume mount containing
+                                        the env file.
+                                      type: string
+                                  required:
+                                  - key
+                                  - path
+                                  - volumeName
                                   type: object
                                   x-kubernetes-map-type: atomic
                                 resourceFieldRef:
@@ -7490,7 +7687,7 @@ spec:
                               Claims lists the names of resources, defined in spec.resourceClaims,
                               that are used by this container.
 
-                              This is an alpha field and requires enabling the
+                              This field depends on the
                               DynamicResourceAllocation feature gate.
 
                               This field is immutable. It can only be set for containers.
@@ -7545,9 +7742,16 @@ spec:
                 type: object
               mount_trusted_ca:
                 description: |-
-                  Define if the operator should or should not mount the custom CA certificates added to the cluster via cluster-wide proxy config.
+                  Enable mounting of custom CA certificates. On OpenShift, mounts CA certificates added to the cluster via cluster-wide proxy config. On vanilla Kubernetes with cert-manager's trust-manager, requires mount_trusted_ca_configmap_key to specify the ConfigMap and key containing the CA bundle.
                   Default: false
                 type: boolean
+              mount_trusted_ca_configmap_key:
+                description: |-
+                  Specifies the ConfigMap and key containing the CA bundle for vanilla Kubernetes clusters.
+                  The ConfigMap can be managed manually or kept up to date using cert-manager's trust-manager.
+                  Format: "configmap-name:key" (e.g., "vault-ca-defaults-bundle:ca.crt")
+                  Required on vanilla Kubernetes when mount_trusted_ca is true. Optional on OpenShift.
+                type: string
               nginx_client_max_body_size:
                 description: |-
                   The client max body size for Nginx Ingress.
@@ -7597,6 +7801,12 @@ spec:
                   If defined, the PVC must be provisioned by the user and the operator will only
                   configure the deployment to use it
                 type: string
+              redirect_to_object_storage:
+                description: |-
+                  When set to True access to artifacts is redirected to the corresponding Cloud storage.
+                  When set to False artifacts are always served by the content app instead.
+                  Default: false
+                type: boolean
               route_annotations:
                 additionalProperties:
                   type: string
@@ -7645,8 +7855,9 @@ spec:
                             in a Container.
                           properties:
                             name:
-                              description: Name of the environment variable. Must
-                                be a C_IDENTIFIER.
+                              description: |-
+                                Name of the environment variable.
+                                May consist of any printable ASCII characters except '='.
                               type: string
                             value:
                               description: |-
@@ -7702,6 +7913,43 @@ spec:
                                       type: string
                                   required:
                                   - fieldPath
+                                  type: object
+                                  x-kubernetes-map-type: atomic
+                                fileKeyRef:
+                                  description: |-
+                                    FileKeyRef selects a key of the env file.
+                                    Requires the EnvFiles feature gate to be enabled.
+                                  properties:
+                                    key:
+                                      description: |-
+                                        The key within the env file. An invalid key will prevent the pod from starting.
+                                        The keys defined within a source may consist of any printable ASCII characters except '='.
+                                        During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                      type: string
+                                    optional:
+                                      default: false
+                                      description: |-
+                                        Specify whether the file or its key must be defined. If the file or key
+                                        does not exist, then the env var is not published.
+                                        If optional is set to true and the specified key does not exist,
+                                        the environment variable will not be set in the Pod's containers.
+
+                                        If optional is set to false and the specified key does not exist,
+                                        an error will be returned during Pod creation.
+                                      type: boolean
+                                    path:
+                                      description: |-
+                                        The path within the volume from which to select the file.
+                                        Must be relative and may not contain the '..' path or start with '..'.
+                                      type: string
+                                    volumeName:
+                                      description: The name of the volume mount containing
+                                        the env file.
+                                      type: string
+                                  required:
+                                  - key
+                                  - path
+                                  - volumeName
                                   type: object
                                   x-kubernetes-map-type: atomic
                                 resourceFieldRef:
@@ -7772,7 +8020,7 @@ spec:
                               Claims lists the names of resources, defined in spec.resourceClaims,
                               that are used by this container.
 
-                              This is an alpha field and requires enabling the
+                              This field depends on the
                               DynamicResourceAllocation feature gate.
 
                               This field is immutable. It can only be set for containers.
@@ -7865,7 +8113,7 @@ spec:
                           Claims lists the names of resources, defined in spec.resourceClaims,
                           that are used by this container.
 
-                          This is an alpha field and requires enabling the
+                          This field depends on the
                           DynamicResourceAllocation feature gate.
 
                           This field is immutable. It can only be set for containers.
@@ -7939,8 +8187,9 @@ spec:
                         in a Container.
                       properties:
                         name:
-                          description: Name of the environment variable. Must be a
-                            C_IDENTIFIER.
+                          description: |-
+                            Name of the environment variable.
+                            May consist of any printable ASCII characters except '='.
                           type: string
                         value:
                           description: |-
@@ -7998,6 +8247,43 @@ spec:
                               - fieldPath
                               type: object
                               x-kubernetes-map-type: atomic
+                            fileKeyRef:
+                              description: |-
+                                FileKeyRef selects a key of the env file.
+                                Requires the EnvFiles feature gate to be enabled.
+                              properties:
+                                key:
+                                  description: |-
+                                    The key within the env file. An invalid key will prevent the pod from starting.
+                                    The keys defined within a source may consist of any printable ASCII characters except '='.
+                                    During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                  type: string
+                                optional:
+                                  default: false
+                                  description: |-
+                                    Specify whether the file or its key must be defined. If the file or key
+                                    does not exist, then the env var is not published.
+                                    If optional is set to true and the specified key does not exist,
+                                    the environment variable will not be set in the Pod's containers.
+
+                                    If optional is set to false and the specified key does not exist,
+                                    an error will be returned during Pod creation.
+                                  type: boolean
+                                path:
+                                  description: |-
+                                    The path within the volume from which to select the file.
+                                    Must be relative and may not contain the '..' path or start with '..'.
+                                  type: string
+                                volumeName:
+                                  description: The name of the volume mount containing
+                                    the env file.
+                                  type: string
+                              required:
+                              - key
+                              - path
+                              - volumeName
+                              type: object
+                              x-kubernetes-map-type: atomic
                             resourceFieldRef:
                               description: |-
                                 Selects a resource of the container: only resources limits and requests
@@ -8052,6 +8338,50 @@ spec:
                       - name
                       type: object
                     type: array
+                  hpa:
+                    description: HPA defines the Horizontal Pod Autoscaler configuration
+                      for the pulp-web deployment
+                    properties:
+                      enabled:
+                        default: false
+                        description: |-
+                          Enabled determines whether HPA should be created for this component
+                          Default: false
+                        type: boolean
+                      max_replicas:
+                        description: |-
+                          MaxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
+                          It cannot be less than MinReplicas.
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      min_replicas:
+                        default: 1
+                        description: |-
+                          MinReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
+                          Default: 1
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      target_cpu_utilization_percentage:
+                        description: |-
+                          TargetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods.
+                          If not specified, a default value of 50 is used.
+                        format: int32
+                        maximum: 100
+                        minimum: 1
+                        type: integer
+                      target_memory_utilization_percentage:
+                        description: TargetMemoryUtilizationPercentage is the target
+                          average memory utilization (represented as a percentage
+                          of requested memory) over all the pods.
+                        format: int32
+                        maximum: 100
+                        minimum: 1
+                        type: integer
+                    required:
+                    - max_replicas
+                    type: object
                   livenessProbe:
                     description: |-
                       Periodic probe of container liveness.
@@ -8308,9 +8638,6 @@ spec:
                           Additional policies may be added in the future.
                           Clients making eviction decisions should disallow eviction of unhealthy pods
                           if they encounter an unrecognized policy in this field.
-
-                          This field is beta-level. The eviction API uses this field when
-                          the feature gate PDBUnhealthyPodEvictionPolicy is enabled (enabled by default).
                         type: string
                     type: object
                   pod_labels:
@@ -8480,50 +8807,6 @@ spec:
                     minimum: 0
                     nullable: true
                     type: integer
-                  hpa:
-                    description: HPA defines the Horizontal Pod Autoscaler configuration
-                      for the pulp-web deployment
-                    properties:
-                      enabled:
-                        default: false
-                        description: |-
-                          Enabled determines whether HPA should be created for this component
-                          Default: false
-                        type: boolean
-                      max_replicas:
-                        description: |-
-                          MaxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
-                          It cannot be less than MinReplicas.
-                        format: int32
-                        minimum: 1
-                        type: integer
-                      min_replicas:
-                        default: 1
-                        description: |-
-                          MinReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
-                          Default: 1
-                        format: int32
-                        minimum: 1
-                        type: integer
-                      target_cpu_utilization_percentage:
-                        description: |-
-                          TargetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods.
-                          If not specified, a default value of 50 is used.
-                        format: int32
-                        maximum: 100
-                        minimum: 1
-                        type: integer
-                      target_memory_utilization_percentage:
-                        description: TargetMemoryUtilizationPercentage is the target
-                          average memory utilization (represented as a percentage
-                          of requested memory) over all the pods.
-                        format: int32
-                        maximum: 100
-                        minimum: 1
-                        type: integer
-                    required:
-                    - max_replicas
-                    type: object
                   resource_requirements:
                     description: Resource requirements for the pulp-web container
                     properties:
@@ -8532,7 +8815,7 @@ spec:
                           Claims lists the names of resources, defined in spec.resourceClaims,
                           that are used by this container.
 
-                          This is an alpha field and requires enabling the
+                          This field depends on the
                           DynamicResourceAllocation feature gate.
 
                           This field is immutable. It can only be set for containers.
@@ -8938,7 +9221,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -8953,7 +9235,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -9120,7 +9401,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -9135,7 +9415,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -9229,8 +9508,8 @@ spec:
                               most preferred is the one with the greatest sum of weights, i.e.
                               for each node that meets all of the scheduling requirements (resource
                               request, requiredDuringScheduling anti-affinity expressions, etc.),
-                              compute a sum by iterating through the elements of this field and adding
-                              "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+                              compute a sum by iterating through the elements of this field and subtracting
+                              "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
                               node(s) with the highest sum are the most preferred.
                             items:
                               description: The weights of all of the matched WeightedPodAffinityTerm
@@ -9300,7 +9579,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -9315,7 +9593,6 @@ spec:
                                         pod labels will be ignored. The default value is empty.
                                         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                       items:
                                         type: string
                                       type: array
@@ -9482,7 +9759,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both matchLabelKeys and labelSelector.
                                     Also, matchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -9497,7 +9773,6 @@ spec:
                                     pod labels will be ignored. The default value is empty.
                                     The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
                                     Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-                                    This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
                                   items:
                                     type: string
                                   type: array
@@ -9591,8 +9866,9 @@ spec:
                         in a Container.
                       properties:
                         name:
-                          description: Name of the environment variable. Must be a
-                            C_IDENTIFIER.
+                          description: |-
+                            Name of the environment variable.
+                            May consist of any printable ASCII characters except '='.
                           type: string
                         value:
                           description: |-
@@ -9650,6 +9926,43 @@ spec:
                               - fieldPath
                               type: object
                               x-kubernetes-map-type: atomic
+                            fileKeyRef:
+                              description: |-
+                                FileKeyRef selects a key of the env file.
+                                Requires the EnvFiles feature gate to be enabled.
+                              properties:
+                                key:
+                                  description: |-
+                                    The key within the env file. An invalid key will prevent the pod from starting.
+                                    The keys defined within a source may consist of any printable ASCII characters except '='.
+                                    During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                  type: string
+                                optional:
+                                  default: false
+                                  description: |-
+                                    Specify whether the file or its key must be defined. If the file or key
+                                    does not exist, then the env var is not published.
+                                    If optional is set to true and the specified key does not exist,
+                                    the environment variable will not be set in the Pod's containers.
+
+                                    If optional is set to false and the specified key does not exist,
+                                    an error will be returned during Pod creation.
+                                  type: boolean
+                                path:
+                                  description: |-
+                                    The path within the volume from which to select the file.
+                                    Must be relative and may not contain the '..' path or start with '..'.
+                                  type: string
+                                volumeName:
+                                  description: The name of the volume mount containing
+                                    the env file.
+                                  type: string
+                              required:
+                              - key
+                              - path
+                              - volumeName
+                              type: object
+                              x-kubernetes-map-type: atomic
                             resourceFieldRef:
                               description: |-
                                 Selects a resource of the container: only resources limits and requests
@@ -9704,6 +10017,50 @@ spec:
                       - name
                       type: object
                     type: array
+                  hpa:
+                    description: HPA defines the Horizontal Pod Autoscaler configuration
+                      for the pulp-worker deployment
+                    properties:
+                      enabled:
+                        default: false
+                        description: |-
+                          Enabled determines whether HPA should be created for this component
+                          Default: false
+                        type: boolean
+                      max_replicas:
+                        description: |-
+                          MaxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
+                          It cannot be less than MinReplicas.
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      min_replicas:
+                        default: 1
+                        description: |-
+                          MinReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
+                          Default: 1
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      target_cpu_utilization_percentage:
+                        description: |-
+                          TargetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods.
+                          If not specified, a default value of 50 is used.
+                        format: int32
+                        maximum: 100
+                        minimum: 1
+                        type: integer
+                      target_memory_utilization_percentage:
+                        description: TargetMemoryUtilizationPercentage is the target
+                          average memory utilization (represented as a percentage
+                          of requested memory) over all the pods.
+                        format: int32
+                        maximum: 100
+                        minimum: 1
+                        type: integer
+                    required:
+                    - max_replicas
+                    type: object
                   init_container:
                     description: InitContainer defines configuration of the init-containers
                       that run in pulpcore pods
@@ -9715,8 +10072,9 @@ spec:
                             in a Container.
                           properties:
                             name:
-                              description: Name of the environment variable. Must
-                                be a C_IDENTIFIER.
+                              description: |-
+                                Name of the environment variable.
+                                May consist of any printable ASCII characters except '='.
                               type: string
                             value:
                               description: |-
@@ -9772,6 +10130,43 @@ spec:
                                       type: string
                                   required:
                                   - fieldPath
+                                  type: object
+                                  x-kubernetes-map-type: atomic
+                                fileKeyRef:
+                                  description: |-
+                                    FileKeyRef selects a key of the env file.
+                                    Requires the EnvFiles feature gate to be enabled.
+                                  properties:
+                                    key:
+                                      description: |-
+                                        The key within the env file. An invalid key will prevent the pod from starting.
+                                        The keys defined within a source may consist of any printable ASCII characters except '='.
+                                        During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+                                      type: string
+                                    optional:
+                                      default: false
+                                      description: |-
+                                        Specify whether the file or its key must be defined. If the file or key
+                                        does not exist, then the env var is not published.
+                                        If optional is set to true and the specified key does not exist,
+                                        the environment variable will not be set in the Pod's containers.
+
+                                        If optional is set to false and the specified key does not exist,
+                                        an error will be returned during Pod creation.
+                                      type: boolean
+                                    path:
+                                      description: |-
+                                        The path within the volume from which to select the file.
+                                        Must be relative and may not contain the '..' path or start with '..'.
+                                      type: string
+                                    volumeName:
+                                      description: The name of the volume mount containing
+                                        the env file.
+                                      type: string
+                                  required:
+                                  - key
+                                  - path
+                                  - volumeName
                                   type: object
                                   x-kubernetes-map-type: atomic
                                 resourceFieldRef:
@@ -9842,7 +10237,7 @@ spec:
                               Claims lists the names of resources, defined in spec.resourceClaims,
                               that are used by this container.
 
-                              This is an alpha field and requires enabling the
+                              This field depends on the
                               DynamicResourceAllocation feature gate.
 
                               This field is immutable. It can only be set for containers.
@@ -10150,9 +10545,6 @@ spec:
                           Additional policies may be added in the future.
                           Clients making eviction decisions should disallow eviction of unhealthy pods
                           if they encounter an unrecognized policy in this field.
-
-                          This field is beta-level. The eviction API uses this field when
-                          the feature gate PDBUnhealthyPodEvictionPolicy is enabled (enabled by default).
                         type: string
                     type: object
                   pod_labels:
@@ -10322,50 +10714,6 @@ spec:
                     minimum: 0
                     nullable: true
                     type: integer
-                  hpa:
-                    description: HPA defines the Horizontal Pod Autoscaler configuration
-                      for the pulp-worker deployment
-                    properties:
-                      enabled:
-                        default: false
-                        description: |-
-                          Enabled determines whether HPA should be created for this component
-                          Default: false
-                        type: boolean
-                      max_replicas:
-                        description: |-
-                          MaxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
-                          It cannot be less than MinReplicas.
-                        format: int32
-                        minimum: 1
-                        type: integer
-                      min_replicas:
-                        default: 1
-                        description: |-
-                          MinReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
-                          Default: 1
-                        format: int32
-                        minimum: 1
-                        type: integer
-                      target_cpu_utilization_percentage:
-                        description: |-
-                          TargetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods.
-                          If not specified, a default value of 50 is used.
-                        format: int32
-                        maximum: 100
-                        minimum: 1
-                        type: integer
-                      target_memory_utilization_percentage:
-                        description: TargetMemoryUtilizationPercentage is the target
-                          average memory utilization (represented as a percentage
-                          of requested memory) over all the pods.
-                        format: int32
-                        maximum: 100
-                        minimum: 1
-                        type: integer
-                    required:
-                    - max_replicas
-                    type: object
                   resource_requirements:
                     description: Resource requirements for the pulp-api container
                     properties:
@@ -10374,7 +10722,7 @@ spec:
                           Claims lists the names of resources, defined in spec.resourceClaims,
                           that are used by this container.
 
-                          This is an alpha field and requires enabling the
+                          This field depends on the
                           DynamicResourceAllocation feature gate.
 
                           This field is immutable. It can only be set for containers.
@@ -10493,9 +10841,10 @@ spec:
                         operator:
                           description: |-
                             Operator represents a key's relationship to the value.
-                            Valid operators are Exists and Equal. Defaults to Equal.
+                            Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                             Exists is equivalent to wildcard for value, so that a pod can
                             tolerate all taints of a particular category.
+                            Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                           type: string
                         tolerationSeconds:
                           description: |-
@@ -10635,7 +10984,6 @@ spec:
                             - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
 
                             If this value is nil, the behavior is equivalent to the Honor policy.
-                            This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
                           type: string
                         nodeTaintsPolicy:
                           description: |-
@@ -10646,7 +10994,6 @@ spec:
                             - Ignore: node taints are ignored. All nodes are included.
 
                             If this value is nil, the behavior is equivalent to the Ignore policy.
-                            This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
                           type: string
                         topologyKey:
                           description: |-
@@ -10768,6 +11115,9 @@ spec:
                 description: Name of the secret with the parameters to connect to
                   an external Redis cluster
                 type: string
+              hide_guarded_distributions:
+                description: The current HIDE_GUARDED_DISTRIBUTIONS definition
+                type: boolean
               image:
                 description: Name of pulp image deployed.
                 type: string
@@ -10796,6 +11146,9 @@ spec:
               pulp_secret_key:
                 description: Name of the Secret to provide Django cryptographic signing.
                 type: string
+              redirect_to_object_storage:
+                description: The current REDIRECT_TO_OBJECT_STORAGE definition
+                type: boolean
               storage_type:
                 description: Type of storage in use by pulpcore pods
                 type: string
