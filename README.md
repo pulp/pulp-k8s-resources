@@ -24,9 +24,6 @@ All options can be set in your `values.yaml` or via `--set` on the Helm CLI.
 | `operator.securityContext`   | Security context for operator container                  | See values.yaml              |
 | `operator.resources`         | Resource requests/limits for operator container          | See values.yaml              |
 | `operator.relatedImages`     | Images for pulp, pulpWeb, redis, postgres                | See values.yaml              |
-| `kubeProxy.image`            | Image for kube-rbac-proxy                                | See values.yaml              |
-| `kubeProxy.securityContext`  | Security context for kube-rbac-proxy                     | See values.yaml              |
-| `kubeProxy.resources`        | Resource requests/limits for kube-rbac-proxy             | See values.yaml              |
 
 #### Installation
 

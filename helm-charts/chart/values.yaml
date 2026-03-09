@@ -38,18 +38,3 @@ operator:
     pulpWeb: quay.io/pulp/pulp-web:stable
     redis: docker.io/library/redis:latest
     postgres: docker.io/library/postgres:13
-
-kubeProxy:
-  image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.0
-  securityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-      - ALL
-  resources:
-    limits:
-      cpu: 500m
-      memory: 128Mi
-    requests:
-      cpu: 10m
-      memory: 64Mi
